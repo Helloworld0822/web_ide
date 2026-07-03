@@ -4,10 +4,10 @@ import { runCode } from '../lib/runCode';
 export function useCodeRunner(code: string) {
   const [isRunning, setIsRunning] = useState(false);
 
-  const handleRun = useCallback(() => {
+  const handleRun = useCallback(async () => {
     setIsRunning(true);
     try {
-      runCode(code);
+      await runCode(code);
     } catch (err) {
       console.error(err instanceof Error ? err.message : String(err));
     } finally {
