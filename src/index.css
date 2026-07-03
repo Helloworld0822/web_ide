@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-canvas: #0e0e0e;
+  --color-border: #2a2a2a;
+  --color-surface-container-lowest: #08100b;
+  --color-surface-container-low: #151d18;
+  --color-surface-container: #19221c;
+  --color-surface-container-high: #232c26;
+  --color-on-surface: #dbe5dc;
+  --color-on-surface-variant: #bacbbe;
+  --color-primary: #6dffba;
+  --color-primary-hover: #00cc88;
+  --color-on-primary: #0e0e0e;
+  --color-tertiary: #ffe0bc;
+  --color-danger: #ef4444;
+  --color-ink: #ededed;
+  --color-ink-muted: #777777;
+
+  --text-label-caps: 10px;
+  --text-label-caps--line-height: 14px;
+  --text-body-sm: 11px;
+  --text-body-sm--line-height: 16px;
+  --text-body-md: 13px;
+  --text-body-md--line-height: 18px;
+  --text-code-md: 12px;
+  --text-code-md--line-height: 18px;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply h-full w-full overflow-hidden;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-on-surface antialiased;
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+  }
+}
+
+@layer components {
+  .activity-bar-item {
+    @apply flex size-10 cursor-pointer items-center justify-center text-on-surface-variant transition-colors hover:text-on-surface;
+  }
+
+  .activity-bar-item.active {
+    @apply relative text-primary;
+  }
+
+  .activity-bar-item.active::before {
+    content: "";
+    @apply absolute left-0 h-6 w-0.5 rounded-r bg-primary;
+  }
+
+  .file-explorer-item {
+    @apply flex cursor-pointer items-center gap-2 px-2 py-1 text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface;
+  }
+
+  .file-explorer-item.active {
+    @apply bg-surface-container-low font-medium text-primary;
+  }
+
+  .panel-tab {
+    @apply flex h-full cursor-pointer items-center px-1 text-label-caps font-bold tracking-wider text-on-surface-variant uppercase transition-colors hover:text-on-surface;
+  }
+
+  .panel-tab.active {
+    @apply border-b-2 border-primary text-primary;
+  }
+
+  .editor-tab {
+    @apply flex cursor-pointer items-center gap-2 border-r border-border px-4 py-2 text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-low;
+  }
+
+  .editor-tab.active {
+    @apply border-t-2 border-t-primary bg-canvas text-primary;
+  }
+}
+
+@layer utilities {
+  .text-label-caps {
+    font-size: var(--text-label-caps);
+    line-height: var(--text-label-caps--line-height);
+    letter-spacing: 0.05em;
+  }
+
+  .text-body-sm {
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+  }
+
+  .text-body-md {
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+  }
+
+  .text-code-md {
+    font-size: var(--text-code-md);
+    line-height: var(--text-code-md--line-height);
+  }
+
+  .font-code-md {
+    font-family: var(--font-mono);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #3b4a41 transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #3b4a41;
+    border-radius: 9999px;
+  }
+}
