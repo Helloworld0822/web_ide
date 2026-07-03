@@ -227,6 +227,7 @@ export function useWorkspace() {
     activeFile,
     activeFileId,
     openFiles,
+    openFileIds,
     source,
     isLoading,
     isOpeningFolder,
