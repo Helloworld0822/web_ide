@@ -3,7 +3,10 @@ import { Editor } from '../Editor';
 import { EditorTabs } from '../EditorTabs';
 import { StatusBar } from '../StatusBar';
 import { Toolbar } from '../Toolbar';
-import type { LogEntry, WorkspaceFile } from '../../types';
+import { getLanguageLabel } from '../../lib/lsp/languages';
+import type { EditorDiagnostic, LogEntry, WorkspaceFile } from '../../types';
+import type { Monaco } from '@monaco-editor/react';
+import type * as MonacoEditorTypes from 'monaco-editor';
 
 interface WorkspaceProps {
   activeFile: WorkspaceFile;
@@ -12,9 +15,17 @@ interface WorkspaceProps {
   onFileClose: (fileId: string) => void;
   onContentChange: (value: string) => void;
   logs: LogEntry[];
+  diagnostics: EditorDiagnostic[];
   onClearLogs: () => void;
   onRun: () => void;
   isRunning: boolean;
+  onEditorMount: (
+    editor: MonacoEditorTypes.editor.IStandaloneCodeEditor,
+    monaco: Monaco,
+  ) => void;
+  onDiagnosticSelect: (diagnostic: EditorDiagnostic) => void;
+  pendingReveal: { line: number; column: number } | null;
+  onRevealComplete: () => void;
 }
 
 export function Workspace({
@@ -24,9 +35,14 @@ export function Workspace({
   onFileClose,
   onContentChange,
   logs,
+  diagnostics,
   onClearLogs,
   onRun,
   isRunning,
+  onEditorMount,
+  onDiagnosticSelect,
+  pendingReveal,
+  onRevealComplete,
 }: WorkspaceProps) {
   return (
     <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
@@ -43,13 +59,20 @@ export function Workspace({
           onTabClose={onFileClose}
         />
         <Editor
-          key={activeFile.id}
-          value={activeFile.content}
+          activeFile={activeFile}
           onChange={onContentChange}
+          onMount={onEditorMount}
+          pendingReveal={pendingReveal}
+          onRevealComplete={onRevealComplete}
         />
-        <Console logs={logs} onClear={onClearLogs} />
+        <Console
+          logs={logs}
+          diagnostics={diagnostics}
+          onClear={onClearLogs}
+          onDiagnosticSelect={onDiagnosticSelect}
+        />
       </main>
-      <StatusBar />
+      <StatusBar languageLabel={getLanguageLabel(activeFile.path)} />
     </div>
   );
 }
