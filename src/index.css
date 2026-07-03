@@ -132,4 +132,12 @@
   .alpine-terminal .xterm-viewport {
     background-color: #0d1510 !important;
   }
+
+  .monaco-editor-container {
+    @apply min-h-0 flex-1;
+  }
+
+  .monaco-editor-container > section {
+    height: 100% !important;
+  }
 }
