@@ -1,26 +1,76 @@
+import MonacoEditor from '@monaco-editor/react';
+import type * as MonacoEditorTypes from 'monaco-editor';
+import type { Monaco } from '@monaco-editor/react';
+import { useEffect, useRef } from 'react';
+import { getLanguageId } from '../lib/lsp/languages';
+import type { WorkspaceFile } from '../types';
+
 interface EditorProps {
-  value: string;
+  activeFile: WorkspaceFile;
   onChange: (value: string) => void;
+  onMount: (
+    editor: MonacoEditorTypes.editor.IStandaloneCodeEditor,
+    monaco: Monaco,
+  ) => void;
+  pendingReveal?: { line: number; column: number } | null;
+  onRevealComplete?: () => void;
 }
 
-export function Editor({ value, onChange }: EditorProps) {
-  const lines = value.split('\n');
+export function Editor({
+  activeFile,
+  onChange,
+  onMount,
+  pendingReveal,
+  onRevealComplete,
+}: EditorProps) {
+  const editorRef = useRef<MonacoEditorTypes.editor.IStandaloneCodeEditor | null>(null);
+
+  useEffect(() => {
+    if (!pendingReveal || !editorRef.current) return;
+
+    editorRef.current.revealLineInCenter(pendingReveal.line);
+    editorRef.current.setPosition({
+      lineNumber: pendingReveal.line,
+      column: pendingReveal.column,
+    });
+    editorRef.current.focus();
+    onRevealComplete?.();
+  }, [pendingReveal, activeFile.id, onRevealComplete]);
 
   return (
-    <div className="scrollbar-thin relative flex min-h-0 flex-1 overflow-auto bg-canvas font-code-md">
-      <div className="w-12 shrink-0 select-none border-r border-border bg-surface-container-lowest py-4 pr-3 text-right text-on-surface-variant/30">
-        {lines.map((_, i) => (
-          <div key={i} className="leading-relaxed">
-            {i + 1}
-          </div>
-        ))}
-      </div>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        spellCheck={false}
-        className="min-h-full w-full resize-none bg-transparent p-4 font-code-md text-code-md leading-relaxed text-ink caret-primary outline-none placeholder:text-ink-muted"
-        placeholder="// Start coding..."
+    <div className="monaco-editor-container min-h-0 flex-1">
+      <MonacoEditor
+        height="100%"
+        key={activeFile.id}
+        path={activeFile.path}
+        language={getLanguageId(activeFile.path)}
+        value={activeFile.content}
+        theme="neon-ide"
+        onChange={(value) => onChange(value ?? '')}
+        onMount={(editor, monaco) => {
+          editorRef.current = editor;
+          onMount(editor, monaco);
+        }}
+        options={{
+          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+          fontSize: 12,
+          lineHeight: 18,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+          tabSize: 2,
+          automaticLayout: true,
+          padding: { top: 16, bottom: 16 },
+          renderLineHighlight: 'line',
+          scrollbar: {
+            verticalScrollbarSize: 6,
+            horizontalScrollbarSize: 6,
+          },
+          suggestOnTriggerCharacters: true,
+          quickSuggestions: true,
+          formatOnPaste: true,
+          bracketPairColorization: { enabled: true },
+        }}
       />
     </div>
   );
