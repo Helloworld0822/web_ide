@@ -80,10 +80,11 @@ export function useAlpineVm(enabled: boolean) {
         emulatorRef.current = emulator;
         emulator.add_listener('emulator-ready', handleReady);
         emulator.add_listener('download-error', handleDownloadError);
-      } catch {
+      } catch (error) {
         if (!disposed) {
           setStatus('error');
-          setStatusMessage('Failed to start Alpine VM');
+          const detail = error instanceof Error ? error.message : 'Unknown error';
+          setStatusMessage(`Failed to start Alpine VM: ${detail}`);
         }
       }
     })();

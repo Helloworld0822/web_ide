@@ -1,8 +1,4 @@
-const CACHE_NAME = 'web-ide-v86-v1';
-const CACHEABLE_PREFIXES = [
-  'https://copy.sh/v86/',
-  'https://dl-cdn.alpinelinux.org/',
-];
+const CACHE_NAME = 'web-ide-vm-v2';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());
@@ -16,8 +12,9 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
 
-  const shouldCache = CACHEABLE_PREFIXES.some((prefix) => request.url.startsWith(prefix))
-    || request.url.includes('/v86/v86.wasm');
+  const url = new URL(request.url);
+  const shouldCache =
+    url.pathname.includes('/v86/') || url.pathname.includes('/vm/');
 
   if (!shouldCache) return;
 

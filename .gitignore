@@ -4,3 +4,5 @@ dist
 stitch-export
 tsconfig.tsbuildinfo
 public/v86/v86.wasm
+public/v86/bios/
+public/vm/
