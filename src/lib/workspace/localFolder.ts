@@ -13,12 +13,29 @@ const TEXT_EXTENSIONS = new Set([
   '.sh', '.sql', '.yaml', '.yml', '.xml', '.env', '.gitignore',
 ]);
 
+const SKIP_DIRECTORIES = new Set([
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+  '.cursor',
+  'coverage',
+]);
+
 const MAX_FILE_SIZE = 1024 * 1024;
 
 function guessFileType(name: string): WorkspaceFile['type'] {
   return name.endsWith('.json') || name.endsWith('.yaml') || name.endsWith('.yml')
     ? 'config'
     : 'file';
+}
+
+export function isFolderPickerCancelled(error: unknown): boolean {
+  return (
+    error instanceof DOMException && error.name === 'AbortError'
+  ) || (
+    error instanceof Error && error.name === 'AbortError'
+  );
 }
 
 async function readDirectoryHandle(
@@ -31,6 +48,7 @@ async function readDirectoryHandle(
     const path = basePath ? `${basePath}/${name}` : name;
 
     if (entry.kind === 'directory') {
+      if (SKIP_DIRECTORIES.has(name)) continue;
       Object.assign(files, await readDirectoryHandle(entry as FileSystemDirectoryHandle, path));
       continue;
     }
