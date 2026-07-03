@@ -1,22 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
 import { PANEL_TABS } from '../constants/ide';
 import { useAlpineVm } from '../hooks/useAlpineVm';
-import type { LogEntry } from '../types';
+import type { EditorDiagnostic, LogEntry } from '../types';
 import { AlpineTerminal } from './vm/AlpineTerminal';
 import { Icon } from './Icon';
+import { ProblemsPanel } from './ProblemsPanel';
 
 interface ConsoleProps {
   logs: LogEntry[];
+  diagnostics: EditorDiagnostic[];
   onClear: () => void;
+  onDiagnosticSelect: (diagnostic: EditorDiagnostic) => void;
 }
 
-export function Console({ logs, onClear }: ConsoleProps) {
+export function Console({ logs, onClear, diagnostics, onDiagnosticSelect }: ConsoleProps) {
   const [activeTab, setActiveTab] = useState<(typeof PANEL_TABS)[number]>('OUTPUT');
   const [vmEnabled, setVmEnabled] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { terminalContainerRef, screenContainerRef, status, statusMessage } =
     useAlpineVm(vmEnabled);
+
+  const problemCount = diagnostics.filter((item) => item.severity === 'error').length;
 
   useEffect(() => {
     if (activeTab === 'TERMINAL') {
@@ -46,9 +51,9 @@ export function Console({ logs, onClear }: ConsoleProps) {
               className={`panel-tab ${activeTab === tab ? 'active' : ''}`}
             >
               {tab}
-              {tab === 'PROBLEMS' && (
-                <span className="ml-2 rounded-full bg-on-surface-variant/20 px-1.5 text-[9px] font-bold">
-                  0
+              {tab === 'PROBLEMS' && problemCount > 0 && (
+                <span className="ml-2 rounded-full bg-danger/20 px-1.5 text-[9px] font-bold text-danger">
+                  {problemCount}
                 </span>
               )}
             </button>
@@ -104,6 +109,8 @@ export function Console({ logs, onClear }: ConsoleProps) {
           )}
           <div ref={bottomRef} />
         </div>
+      ) : activeTab === 'PROBLEMS' ? (
+        <ProblemsPanel diagnostics={diagnostics} onSelect={onDiagnosticSelect} />
       ) : (
         <div className="flex flex-1 items-center justify-center p-4 text-body-sm text-on-surface-variant">
           {activeTab} panel is not available yet.
