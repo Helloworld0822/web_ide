@@ -2,13 +2,16 @@ import type { Monaco } from '@monaco-editor/react';
 import type { WorkspaceFile } from '../../types';
 import { getLanguageId, isTypeScriptLanguage } from './languages';
 
-export function toFileUri(path: string): string {
-  const normalized = path.replace(/^\/+/, '');
-  return `file:///${normalized}`;
+/** Matches @monaco-editor/react model paths (`monaco.Uri.parse(path)`). */
+export function toModelPath(path: string): string {
+  return path.replace(/^\/+/, '');
 }
 
 export function uriToPath(uri: string): string {
-  return uri.replace(/^file:\/\//, '').replace(/^\/+/, '');
+  return uri
+    .replace(/^file:\/\//, '')
+    .replace(/^inmemory:\/\//, '')
+    .replace(/^\/+/, '');
 }
 
 function findFileByPath(
@@ -31,7 +34,7 @@ export function syncTypeScriptWorkspace(
 
   const extraLibs = scriptFiles.map((file) => ({
     content: file.content,
-    filePath: toFileUri(file.path),
+    filePath: toModelPath(file.path),
   }));
 
   const compilerOptions = {
@@ -51,43 +54,6 @@ export function syncTypeScriptWorkspace(
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
   monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
   monaco.languages.typescript.javascriptDefaults.setExtraLibs(extraLibs);
-}
-
-export function syncOpenModels(
-  monaco: Monaco,
-  files: Record<string, WorkspaceFile>,
-  openFileIds: string[],
-): void {
-  const openIdSet = new Set(openFileIds);
-
-  for (const model of monaco.editor.getModels()) {
-    const path = uriToPath(model.uri.toString());
-    const file = findFileByPath(files, path);
-    if (!file || !openIdSet.has(file.id)) {
-      model.dispose();
-    }
-  }
-
-  for (const fileId of openFileIds) {
-    const file = files[fileId];
-    if (!file) continue;
-
-    const uri = monaco.Uri.parse(toFileUri(file.path));
-    const language = getLanguageId(file.path);
-    const existing = monaco.editor.getModel(uri);
-
-    if (existing) {
-      if (existing.getValue() !== file.content) {
-        existing.setValue(file.content);
-      }
-      if (existing.getLanguageId() !== language) {
-        monaco.editor.setModelLanguage(existing, language);
-      }
-      continue;
-    }
-
-    monaco.editor.createModel(file.content, language, uri);
-  }
 }
 
 export function findFileIdByPath(

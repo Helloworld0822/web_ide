@@ -15,7 +15,6 @@ export default function App() {
     activeFile,
     activeFileId,
     openFiles,
-    openFileIds,
     tree,
     source,
     isLoading,
@@ -38,7 +37,6 @@ export default function App() {
   const { isRunning, handleRun } = useCodeRunner(activeFile?.content ?? '');
   const { diagnostics, handleEditorMount } = useLsp({
     files: files ?? {},
-    openFileIds,
   });
 
   const [revealTarget, setRevealTarget] = useState<{
