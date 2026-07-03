@@ -5,12 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "node scripts/copy-v86-assets.mjs && tsc -b && vite build",
+    "build:pages": "node scripts/copy-v86-assets.mjs && tsc -b && vite build --mode pages",
+    "preview": "vite preview",
+    "postinstall": "node scripts/copy-v86-assets.mjs"
   },
   "dependencies": {
+    "@xterm/xterm": "^6.0.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "v86": "^0.5.420"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.8",

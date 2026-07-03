@@ -1,11 +1,12 @@
 import { Icon } from './Icon';
 
 interface ToolbarProps {
+  activeFilePath: string;
   onRun: () => void;
   isRunning?: boolean;
 }
 
-export function Toolbar({ onRun, isRunning }: ToolbarProps) {
+export function Toolbar({ activeFilePath, onRun, isRunning }: ToolbarProps) {
   return (
     <header className="z-30 flex h-12 shrink-0 items-center justify-between border-b border-border bg-canvas px-4">
       <div className="flex items-center gap-2 text-body-sm text-on-surface-variant">
@@ -13,7 +14,7 @@ export function Toolbar({ onRun, isRunning }: ToolbarProps) {
         <span>/</span>
         <span>web-ide</span>
         <span>/</span>
-        <span className="text-on-surface">main.js</span>
+        <span className="text-on-surface">{activeFilePath}</span>
       </div>
 
       <div className="flex items-center gap-4">

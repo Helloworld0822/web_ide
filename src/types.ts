@@ -5,8 +5,11 @@ export interface LogEntry {
   timestamp: Date;
 }
 
-export interface FileItem {
+export interface WorkspaceFile {
   id: string;
   name: string;
-  active?: boolean;
+  path: string;
+  type: 'file' | 'config';
+  content: string;
+  icon?: string;
 }

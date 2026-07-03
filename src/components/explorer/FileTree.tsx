@@ -8,14 +8,35 @@ function FileIcon({ type }: { type: TreeItem['type'] }) {
   return <Icon name="description" className="text-sm text-on-surface-variant" />;
 }
 
-function TreeNode({ item, depth = 0 }: { item: TreeItem; depth?: number }) {
+interface TreeNodeProps {
+  item: TreeItem;
+  depth?: number;
+  activeFileId: string;
+  onFileSelect: (fileId: string) => void;
+}
+
+function TreeNode({ item, depth = 0, activeFileId, onFileSelect }: TreeNodeProps) {
   const folderIconClass =
     item.folderColor === 'yellow' ? 'text-yellow-500' : 'text-blue-400';
 
+  const isFile = item.type === 'file' || item.type === 'config';
+  const isActive = isFile && item.id === activeFileId;
+
+  const handleClick = () => {
+    if (isFile && item.id) {
+      onFileSelect(item.id);
+    }
+  };
+
   return (
     <>
-      <div
-        className={`file-explorer-item ${item.active ? 'active' : ''}`}
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={!isFile}
+        className={`file-explorer-item w-full text-left ${isActive ? 'active' : ''} ${
+          !isFile ? 'cursor-default' : ''
+        }`}
         style={{ paddingLeft: `${depth * 8 + 8}px` }}
       >
         {item.type === 'folder' ? (
@@ -24,9 +45,15 @@ function TreeNode({ item, depth = 0 }: { item: TreeItem; depth?: number }) {
           <FileIcon type={item.type} />
         )}
         <span>{item.name}</span>
-      </div>
+      </button>
       {item.children?.map((child) => (
-        <TreeNode key={child.name} item={child} depth={depth + 1} />
+        <TreeNode
+          key={child.id ?? child.name}
+          item={child}
+          depth={depth + 1}
+          activeFileId={activeFileId}
+          onFileSelect={onFileSelect}
+        />
       ))}
     </>
   );
@@ -35,9 +62,11 @@ function TreeNode({ item, depth = 0 }: { item: TreeItem; depth?: number }) {
 interface FileTreeProps {
   projectName: string;
   items: TreeItem[];
+  activeFileId: string;
+  onFileSelect: (fileId: string) => void;
 }
 
-export function FileTree({ projectName, items }: FileTreeProps) {
+export function FileTree({ projectName, items, activeFileId, onFileSelect }: FileTreeProps) {
   return (
     <div className="mb-4">
       <div className="flex items-center px-2 py-1 text-body-sm font-bold uppercase text-on-surface">
@@ -46,7 +75,12 @@ export function FileTree({ projectName, items }: FileTreeProps) {
       </div>
       <div className="ml-2">
         {items.map((item) => (
-          <TreeNode key={item.name} item={item} />
+          <TreeNode
+            key={item.id ?? item.name}
+            item={item}
+            activeFileId={activeFileId}
+            onFileSelect={onFileSelect}
+          />
         ))}
       </div>
     </div>

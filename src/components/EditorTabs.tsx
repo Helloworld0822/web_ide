@@ -1,24 +1,59 @@
-import { EDITOR_TABS } from '../constants/ide';
+import type { WorkspaceFile } from '../types';
 import { Icon } from './Icon';
 
-export function EditorTabs() {
+interface EditorTabsProps {
+  openFiles: WorkspaceFile[];
+  activeFileId: string;
+  onTabSelect: (fileId: string) => void;
+  onTabClose: (fileId: string) => void;
+}
+
+export function EditorTabs({
+  openFiles,
+  activeFileId,
+  onTabSelect,
+  onTabClose,
+}: EditorTabsProps) {
   return (
     <div className="flex h-9 shrink-0 border-b border-border bg-surface-container-lowest">
-      {EDITOR_TABS.map((tab) => (
-        <div key={tab.id} className={`editor-tab ${tab.active ? 'active' : ''}`}>
-          <Icon
-            name={tab.icon ?? 'description'}
-            className={`text-sm ${tab.active ? 'text-primary' : ''}`}
-          />
-          <span className="font-medium">{tab.label}</span>
-          {tab.active && (
+      {openFiles.map((file) => {
+        const isActive = file.id === activeFileId;
+
+        return (
+          <button
+            key={file.id}
+            type="button"
+            onClick={() => onTabSelect(file.id)}
+            className={`editor-tab ${isActive ? 'active' : ''}`}
+          >
             <Icon
-              name="close"
-              className="rounded p-0.5 text-sm hover:bg-surface-container-high"
+              name={file.icon ?? 'description'}
+              className={`text-sm ${isActive ? 'text-primary' : ''}`}
             />
-          )}
-        </div>
-      ))}
+            <span className="font-medium">{file.name}</span>
+            {isActive && openFiles.length > 1 && (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onTabClose(file.id);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onTabClose(file.id);
+                  }
+                }}
+                className="rounded p-0.5 hover:bg-surface-container-high"
+              >
+                <Icon name="close" className="text-sm" />
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
