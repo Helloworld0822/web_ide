@@ -1,6 +1,10 @@
 import { Icon } from './Icon';
 
-export function StatusBar() {
+interface StatusBarProps {
+  languageLabel: string;
+}
+
+export function StatusBar({ languageLabel }: StatusBarProps) {
   return (
     <footer className="z-30 flex h-6 shrink-0 select-none items-center justify-between bg-primary px-3 text-[10px] font-bold text-on-primary">
       <div className="flex items-center gap-4">
@@ -21,7 +25,7 @@ export function StatusBar() {
           UTF-8
         </div>
         <div className="flex h-full cursor-pointer items-center px-2 hover:bg-on-primary/10">
-          JavaScript
+          {languageLabel}
         </div>
         <div className="flex h-full cursor-pointer items-center gap-1 px-2 hover:bg-on-primary/10">
           <Icon name="notifications" className="text-[14px]" />
