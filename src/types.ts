@@ -5,6 +5,18 @@ export interface LogEntry {
   timestamp: Date;
 }
 
+export interface EditorDiagnostic {
+  id: string;
+  fileId: string;
+  filePath: string;
+  fileName: string;
+  line: number;
+  column: number;
+  message: string;
+  severity: 'error' | 'warning' | 'info';
+  source?: string;
+}
+
 export interface WorkspaceFile {
   id: string;
   name: string;
