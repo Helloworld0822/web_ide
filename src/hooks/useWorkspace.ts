@@ -4,6 +4,7 @@ import { loadWorkspaceFromBrowserStorage } from '../lib/storage/loadBrowserWorks
 import { saveWorkspace, loadWorkspace } from '../lib/storage/workspaceStore';
 import {
   createDefaultWorkspace,
+  isFolderPickerCancelled,
   loadWorkspaceFromFolder,
   loadWorkspaceFromImportedFiles,
   supportsDirectoryPicker,
@@ -156,7 +157,6 @@ export function useWorkspace() {
 
   const openLocalFolder = useCallback(async () => {
     if (!hasDirectoryPicker) {
-      folderInputRef.current?.click();
       return;
     }
 
@@ -165,6 +165,9 @@ export function useWorkspace() {
       const workspace = await loadWorkspaceFromFolder();
       applyWorkspace(workspace);
     } catch (error) {
+      if (isFolderPickerCancelled(error)) {
+        return;
+      }
       if (error instanceof Error && error.message === 'FALLBACK_FILE_INPUT') {
         folderInputRef.current?.click();
         return;

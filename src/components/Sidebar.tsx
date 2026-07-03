@@ -1,6 +1,7 @@
 import type { ChangeEvent, RefObject } from 'react';
 import type { TreeItem } from '../constants/ide';
 import { BRANCHES } from '../constants/ide';
+import { visuallyHiddenInputClass } from '../lib/workspace/hiddenInput';
 import { BranchesList } from './explorer/BranchesList';
 import { FileTree } from './explorer/FileTree';
 import { Icon } from './Icon';
@@ -57,20 +58,22 @@ export function Sidebar({
 
   return (
     <aside className="z-40 flex h-full w-80 shrink-0 flex-col border-r border-border bg-surface-container-lowest">
-      <input
-        ref={folderInputRef}
-        type="file"
-        className="hidden"
-        // @ts-expect-error non-standard directory upload attribute
-        webkitdirectory=""
-        directory=""
-        multiple
-        onChange={onFolderInputChange}
-      />
+      {hasDirectoryPicker && (
+        <input
+          ref={folderInputRef}
+          type="file"
+          className={visuallyHiddenInputClass}
+          // @ts-expect-error non-standard directory upload attribute
+          webkitdirectory=""
+          directory=""
+          multiple
+          onChange={onFolderInputChange}
+        />
+      )}
       <input
         ref={filesInputRef}
         type="file"
-        className="hidden"
+        className={visuallyHiddenInputClass}
         multiple
         accept=".js,.ts,.tsx,.jsx,.json,.css,.html,.md,.txt,.sh,.sql,.yaml,.yml,.xml,.env"
         onChange={onFilesInputChange}
@@ -84,15 +87,33 @@ export function Sidebar({
       </div>
 
       <div className="space-y-2 border-b border-border px-3 py-2">
-        <button
-          type="button"
-          onClick={onOpenFolder}
-          disabled={isOpeningFolder}
-          className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-surface-container-low px-3 py-2 text-body-sm font-medium text-on-surface transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-50"
-        >
-          <Icon name="folder_open" className="text-base" />
-          {folderButtonLabel}
-        </button>
+        {hasDirectoryPicker ? (
+          <button
+            type="button"
+            onClick={onOpenFolder}
+            disabled={isOpeningFolder}
+            className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-surface-container-low px-3 py-2 text-body-sm font-medium text-on-surface transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-50"
+          >
+            <Icon name="folder_open" className="text-base" />
+            {folderButtonLabel}
+          </button>
+        ) : (
+          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-border bg-surface-container-low px-3 py-2 text-body-sm font-medium text-on-surface transition-colors hover:border-primary/40 hover:text-primary has-disabled:opacity-50">
+            <input
+              ref={folderInputRef}
+              type="file"
+              className={visuallyHiddenInputClass}
+              disabled={isOpeningFolder}
+              // @ts-expect-error non-standard directory upload attribute
+              webkitdirectory=""
+              directory=""
+              multiple
+              onChange={onFolderInputChange}
+            />
+            <Icon name="folder_open" className="text-base" />
+            {folderButtonLabel}
+          </label>
+        )}
 
         <button
           type="button"
