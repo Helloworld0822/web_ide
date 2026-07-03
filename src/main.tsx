@@ -2,6 +2,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { configureMonacoEnvironment } from './lib/lsp/monacoEnv';
+
+configureMonacoEnvironment();
 import '@xterm/xterm/css/xterm.css';
 
 if ('serviceWorker' in navigator) {
