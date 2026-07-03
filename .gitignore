@@ -3,3 +3,4 @@ dist
 *.local
 stitch-export
 tsconfig.tsbuildinfo
+public/v86/v86.wasm

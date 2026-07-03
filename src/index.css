@@ -123,4 +123,13 @@
     background-color: #3b4a41;
     border-radius: 9999px;
   }
+
+  .alpine-terminal .xterm {
+    height: 100%;
+    padding: 4px;
+  }
+
+  .alpine-terminal .xterm-viewport {
+    background-color: #0d1510 !important;
+  }
 }

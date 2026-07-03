@@ -3,11 +3,14 @@ import { Editor } from '../Editor';
 import { EditorTabs } from '../EditorTabs';
 import { StatusBar } from '../StatusBar';
 import { Toolbar } from '../Toolbar';
-import type { LogEntry } from '../../types';
+import type { LogEntry, WorkspaceFile } from '../../types';
 
 interface WorkspaceProps {
-  code: string;
-  onCodeChange: (value: string) => void;
+  activeFile: WorkspaceFile;
+  openFiles: WorkspaceFile[];
+  onFileSelect: (fileId: string) => void;
+  onFileClose: (fileId: string) => void;
+  onContentChange: (value: string) => void;
   logs: LogEntry[];
   onClearLogs: () => void;
   onRun: () => void;
@@ -15,8 +18,11 @@ interface WorkspaceProps {
 }
 
 export function Workspace({
-  code,
-  onCodeChange,
+  activeFile,
+  openFiles,
+  onFileSelect,
+  onFileClose,
+  onContentChange,
   logs,
   onClearLogs,
   onRun,
@@ -24,10 +30,23 @@ export function Workspace({
 }: WorkspaceProps) {
   return (
     <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-      <Toolbar onRun={onRun} isRunning={isRunning} />
+      <Toolbar
+        activeFilePath={activeFile.path}
+        onRun={onRun}
+        isRunning={isRunning}
+      />
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-canvas">
-        <EditorTabs />
-        <Editor value={code} onChange={onCodeChange} />
+        <EditorTabs
+          openFiles={openFiles}
+          activeFileId={activeFile.id}
+          onTabSelect={onFileSelect}
+          onTabClose={onFileClose}
+        />
+        <Editor
+          key={activeFile.id}
+          value={activeFile.content}
+          onChange={onContentChange}
+        />
         <Console logs={logs} onClear={onClearLogs} />
       </main>
       <StatusBar />
