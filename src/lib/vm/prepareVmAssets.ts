@@ -1,4 +1,4 @@
-import { ALPINE_ISO, ALPINE_VM_CONFIG } from '../../constants/vm';
+import { VM_ASSET_PATHS } from '../../constants/vm';
 import {
   bufferToBlobUrl,
   fetchAssetWithCache,
@@ -12,27 +12,30 @@ export interface VmAssetUrls {
   cdromUrl: string;
 }
 
+function publicAssetUrl(relativePath: string): string {
+  return new URL(`${import.meta.env.BASE_URL}${relativePath}`, window.location.href).href;
+}
+
 export async function prepareVmAssets(
   onStatus?: (message: string) => void,
 ): Promise<VmAssetUrls> {
-  onStatus?.('Loading cached VM libraries...');
+  onStatus?.('Loading VM libraries...');
 
-  const wasmUrl = new URL(`${import.meta.env.BASE_URL}v86/v86.wasm`, window.location.href).href;
-  const wasmData = await fetchAssetWithCache(wasmUrl);
+  const wasmData = await fetchAssetWithCache(publicAssetUrl(VM_ASSET_PATHS.wasm));
   const wasmPath = bufferToBlobUrl(wasmData, 'application/wasm');
 
-  onStatus?.('Caching BIOS images locally...');
+  onStatus?.('Loading BIOS images...');
   const [biosUrl, vgaBiosUrl] = await Promise.all([
-    fetchAssetWithCache(ALPINE_VM_CONFIG.bios.url).then((data) =>
+    fetchAssetWithCache(publicAssetUrl(VM_ASSET_PATHS.seabios)).then((data) =>
       bufferToBlobUrl(data, 'application/octet-stream'),
     ),
-    fetchAssetWithCache(ALPINE_VM_CONFIG.vgaBios.url).then((data) =>
+    fetchAssetWithCache(publicAssetUrl(VM_ASSET_PATHS.vgabios)).then((data) =>
       bufferToBlobUrl(data, 'application/octet-stream'),
     ),
   ]);
 
-  onStatus?.('Caching Alpine ISO locally (first run may take a while)...');
-  const isoData = await fetchAssetWithCache(ALPINE_ISO.url);
+  onStatus?.('Loading Alpine ISO (first run may take a while)...');
+  const isoData = await fetchAssetWithCache(publicAssetUrl(VM_ASSET_PATHS.alpineIso));
   const cdromUrl = bufferToBlobUrl(isoData, 'application/x-iso9660-image');
 
   writeLocalJson(LOCAL_KEYS.vmCacheReady, {
@@ -41,7 +44,7 @@ export async function prepareVmAssets(
     isoBytes: isoData.byteLength,
   });
 
-  onStatus?.('VM libraries cached locally');
+  onStatus?.('VM libraries ready');
 
   return {
     wasmPath,
