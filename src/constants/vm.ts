@@ -11,7 +11,7 @@ export const ALPINE_ISO = {
 } as const;
 
 export const ALPINE_VM_CONFIG = {
-  memorySize: 512 * 1024 * 1024,
+  memorySize: 256 * 1024 * 1024,
   vgaMemorySize: 8 * 1024 * 1024,
   cmdline: 'console=hvc0',
 } as const;

@@ -1,4 +1,5 @@
-const CACHE_NAME = 'web-ide-vm-v2';
+const CACHE_NAME = 'web-ide-vm-v3';
+const CACHEABLE_PATHS = ['/v86/v86.wasm', '/v86/bios/'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());
@@ -13,9 +14,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
-  const shouldCache =
-    url.pathname.includes('/v86/') || url.pathname.includes('/vm/');
-
+  const shouldCache = CACHEABLE_PATHS.some((segment) => url.pathname.includes(segment));
   if (!shouldCache) return;
 
   event.respondWith(
@@ -25,7 +24,11 @@ self.addEventListener('fetch', (event) => {
 
       const response = await fetch(request);
       if (response.ok) {
-        await cache.put(request, response.clone());
+        try {
+          await cache.put(request, response.clone());
+        } catch {
+          // Skip caching if the asset is too large for the Cache API.
+        }
       }
       return response;
     }),

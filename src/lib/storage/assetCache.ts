@@ -19,7 +19,11 @@ export async function fetchAssetWithCache(url: string): Promise<ArrayBuffer> {
   }
 
   const data = await response.arrayBuffer();
-  await setCachedAsset(url, data);
+  try {
+    await setCachedAsset(url, data);
+  } catch {
+    // Ignore quota errors for large assets such as the Alpine ISO.
+  }
   return data;
 }
 
