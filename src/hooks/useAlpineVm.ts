@@ -29,10 +29,11 @@ export function useAlpineVm(enabled: boolean) {
       terminalContainer.querySelector<HTMLElement>('.xterm-helper-textarea')?.focus();
     };
 
-    const handleDownloadError = () => {
+    const handleDownloadError = (event: { file_name?: string }) => {
       if (disposed) return;
       setStatus('error');
-      setStatusMessage('Failed to download Alpine VM assets');
+      const target = event.file_name ? ` (${event.file_name})` : '';
+      setStatusMessage(`Failed to download Alpine VM assets${target}`);
     };
 
     setStatus('loading');

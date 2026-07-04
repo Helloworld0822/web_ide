@@ -3,7 +3,6 @@ import type { RefObject } from 'react';
 import type { VmStatus } from '../../hooks/useAlpineVm';
 
 interface AlpineTerminalProps {
-  enabled: boolean;
   status: VmStatus;
   statusMessage: string;
   terminalContainerRef: RefObject<HTMLDivElement | null>;
@@ -11,22 +10,13 @@ interface AlpineTerminalProps {
 }
 
 export function AlpineTerminal({
-  enabled,
   status,
   statusMessage,
   terminalContainerRef,
   screenContainerRef,
 }: AlpineTerminalProps) {
-  if (!enabled) {
-    return (
-      <p className="p-3 text-on-surface-variant">
-        Open the Terminal tab to boot Alpine Linux in WebAssembly.
-      </p>
-    );
-  }
-
   return (
-    <div className="relative flex h-full min-h-0 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-3 py-1.5 text-body-sm">
         <div className="flex items-center gap-2">
           <span

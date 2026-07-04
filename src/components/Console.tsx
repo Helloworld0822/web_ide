@@ -15,26 +15,18 @@ interface ConsoleProps {
 
 export function Console({ logs, onClear, diagnostics, onDiagnosticSelect }: ConsoleProps) {
   const [activeTab, setActiveTab] = useState<(typeof PANEL_TABS)[number]>('OUTPUT');
-  const [vmEnabled, setVmEnabled] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const isTerminalTab = activeTab === 'TERMINAL';
 
   const { terminalContainerRef, screenContainerRef, status, statusMessage } =
-    useAlpineVm(vmEnabled);
-
-  const problemCount = diagnostics.filter((item) => item.severity === 'error').length;
-
-  useEffect(() => {
-    if (activeTab === 'TERMINAL') {
-      setVmEnabled(true);
-    }
-  }, [activeTab]);
+    useAlpineVm(isTerminalTab);
 
   useEffect(() => {
     if (activeTab !== 'OUTPUT') return;
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs, activeTab]);
 
-  const isTerminalTab = activeTab === 'TERMINAL';
+  const problemCount = diagnostics.filter((item) => item.severity === 'error').length;
   const panelHeight = isTerminalTab ? 'h-80' : 'h-48';
 
   return (
@@ -71,13 +63,14 @@ export function Console({ logs, onClear, diagnostics, onDiagnosticSelect }: Cons
       </div>
 
       {isTerminalTab ? (
-        <AlpineTerminal
-          enabled={vmEnabled}
-          status={status}
-          statusMessage={statusMessage}
-          terminalContainerRef={terminalContainerRef}
-          screenContainerRef={screenContainerRef}
-        />
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <AlpineTerminal
+            status={status}
+            statusMessage={statusMessage}
+            terminalContainerRef={terminalContainerRef}
+            screenContainerRef={screenContainerRef}
+          />
+        </div>
       ) : activeTab === 'OUTPUT' ? (
         <div className="scrollbar-thin flex-1 overflow-auto p-3 font-code-md text-code-md">
           <div className="mb-1 flex items-center gap-2">
