@@ -16,6 +16,9 @@ interface EditorProps {
   onRevealComplete?: () => void;
 }
 
+const EDITOR_FONT =
+  '"JetBrains Mono", "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", ui-monospace, monospace';
+
 export function Editor({
   activeFile,
   onChange,
@@ -24,6 +27,7 @@ export function Editor({
   onRevealComplete,
 }: EditorProps) {
   const editorRef = useRef<MonacoEditorTypes.editor.IStandaloneCodeEditor | null>(null);
+  const isComposingRef = useRef(false);
 
   useEffect(() => {
     if (!pendingReveal || !editorRef.current) return;
@@ -44,15 +48,28 @@ export function Editor({
         key={activeFile.id}
         path={activeFile.path}
         language={getLanguageId(activeFile.path)}
-        value={activeFile.content}
+        defaultValue={activeFile.content}
         theme="neon-ide"
-        onChange={(value) => onChange(value ?? '')}
+        onChange={(value) => {
+          if (isComposingRef.current) return;
+          onChange(value ?? '');
+        }}
         onMount={(editor, monaco) => {
           editorRef.current = editor;
+          const textarea = editor.getContainerDomNode().querySelector('textarea');
+          if (textarea) {
+            textarea.addEventListener('compositionstart', () => {
+              isComposingRef.current = true;
+            });
+            textarea.addEventListener('compositionend', () => {
+              isComposingRef.current = false;
+              onChange(editor.getValue());
+            });
+          }
           onMount(editor, monaco);
         }}
         options={{
-          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+          fontFamily: EDITOR_FONT,
           fontSize: 12,
           lineHeight: 18,
           minimap: { enabled: false },
